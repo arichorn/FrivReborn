@@ -1,21 +1,33 @@
-name: Deploy to GitHub Pages
+name: Deploy to Github arichorn.github.io/friv Page
 
 on:
   push:
     branches:
-      - main
+      - deploy
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-      - name: Build and deploy
-        uses: JamesIves/github-pages-deploy-action@4.1.2
+      - name: Pull Docker image
+        run: docker pull ghcr.io/actions/jekyll-build-pages:v1.0.9
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
         with:
-          branch: gh-pages
-          folder: friv
-          repository: arichorn/arichorn.github.io
+          node-version: 14
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build site
+        run: npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: docker://ghcr.io/actions/jekyll-build-pages:v1.0.9
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
